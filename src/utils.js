@@ -1,9 +1,12 @@
 import path from 'node:path';
 import { fileURLToPath } from 'url';
 
+export const getFileName = (url) => {
+  return fileURLToPath(url);
+}
+
 export const getDirName = (url) => {
-  const __filename = fileURLToPath(url);
-  return path.dirname(__filename);
+  return path.dirname(getFileName(url));
 }
 
 export const getPath = (url, segments = []) => {
