@@ -3,9 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { getPath, throwError } from '../utils.js';
 
 const read = async () => {
-    const filePathSegments = ['files', 'fileToRead.txt'];
-
-    const filePath = getPath(import.meta.url, filePathSegments);
+    const filePath = getPath(import.meta.url, ['files', 'fileToRead.txt']);
 
     try {
         const content = await readFile(filePath, { encoding: 'utf8' });
@@ -15,6 +13,7 @@ const read = async () => {
             throwError();
         } else {
             console.error(err);
+            process.exit(1);
         }
     }
 };

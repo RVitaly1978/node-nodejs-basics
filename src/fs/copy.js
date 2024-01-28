@@ -6,21 +6,21 @@ import { getPath, throwError } from '../utils.js';
 const copyItem = async (item, srcPath, destPath) => {
     const currItemPath = path.join(srcPath, item);
     const destItemPath = path.join(destPath, item);
+
     const itemStat = await stat(currItemPath);
+
     if (itemStat.isFile()) {
         await copyFile(currItemPath, destItemPath);
     } else if (itemStat.isDirectory()) {
         await mkdir(destItemPath, { recursive: true });
     }
-    return;
 }
 
 const copy = async () => {
-    const srcFolderPathSegments = ['files'];
-    const destFolderPathSegments = ['files_copy'];
+    const srcPath = getPath(import.meta.url, ['files']);
+    const destPath = getPath(import.meta.url, ['files_copy']);
 
-    const srcPath = getPath(import.meta.url, srcFolderPathSegments);
-    const destPath = getPath(import.meta.url, destFolderPathSegments);
+    let isFileExist = false;
 
     try {
         await stat(srcPath);
@@ -29,29 +29,32 @@ const copy = async () => {
             throwError();
         } else {
             console.error(err);
-            return;
+            process.exit(1);
         }
     }
 
     try {
         await stat(destPath);
-        throwError();
+        isFileExist = true;
     } catch (err) {
         if (err.code !== 'ENOENT') {
             console.error(err);
-            return;
+            process.exit(1);
         }
     }
 
-    // without using cp
+    if (isFileExist) {
+        throwError();
+    }
+
     try {
         await mkdir(destPath, { recursive: true });
         const items = await readdir(srcPath);
         const records = items.map((item) => copyItem(item, srcPath, destPath));
         await Promise.all(records);
-        process.exit();
     } catch (err) {
         console.error(err);
+        process.exit(1);
     }
 
     // with using cp
@@ -59,6 +62,7 @@ const copy = async () => {
     //     await cp(srcPath, destPath, { recursive: true });
     // } catch (err) {
     //     console.error(err);
+    //     process.exit();
     // }
 };
 

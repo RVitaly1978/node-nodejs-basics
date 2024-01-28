@@ -3,8 +3,7 @@ import { spawn } from 'node:child_process';
 import { getPath } from '../utils.js';
 
 const spawnChildProcess = async (args) => {
-    const scriptPathSegments = ['files', 'script.js'];
-    const scriptPath = getPath(import.meta.url, scriptPathSegments);
+    const scriptPath = getPath(import.meta.url, ['files', 'script.js']);
 
     const scriptProcess = spawn('node', [scriptPath, ...args]);
 
@@ -13,9 +12,10 @@ const spawnChildProcess = async (args) => {
     });
 
     scriptProcess.stdout.pipe(process.stdout);
+    scriptProcess.stderr.pipe(process.stderr);
     process.stdin.pipe(scriptProcess.stdin);
 };
 
 // Put your arguments in function call to test this functionality
 // spawnChildProcess( /* [someArgument1, someArgument2, ...] */);
-spawnChildProcess([12, 44, 'qwerty']);
+spawnChildProcess([12, true, 'qwerty', {}]);

@@ -3,9 +3,7 @@ import { rm } from 'node:fs/promises';
 import { getPath, throwError } from '../utils.js';
 
 const remove = async () => {
-    const filePathSegments = ['files', 'fileToRemove.txt'];
-
-    const filePath = getPath(import.meta.url, filePathSegments);
+    const filePath = getPath(import.meta.url, ['files', 'fileToRemove.txt']);
 
     try {
         await rm(filePath);
@@ -14,6 +12,7 @@ const remove = async () => {
             throwError();
         } else {
             console.error(err);
+            process.exit(1);
         }
     }
 };

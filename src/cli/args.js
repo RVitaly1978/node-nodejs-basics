@@ -22,10 +22,9 @@ const parseArgs = () => {
         }
     });
 
-    const formattedArgs = args.reduce((acc, { key, value }) => {
-        acc = acc ? `${acc}, ${key} is ${value}` : `${key} is ${value}`;
-        return acc;
-    }, '');
+    const formattedArgs = args
+        .map(({ key, value }) => `${key} is ${value}`)
+        .join(', ');
 
     console.log(formattedArgs);
 };

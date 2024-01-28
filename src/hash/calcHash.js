@@ -1,5 +1,6 @@
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
+import { pipeline } from 'node:stream/promises';
 import { Transform } from 'node:stream';
 import { createHash } from 'node:crypto';
 import { EOL } from 'node:os';
@@ -7,8 +8,7 @@ import { EOL } from 'node:os';
 import { getPath } from '../utils.js';
 
 const calculateHash = async () => {
-    const filePathSegments = ['files', 'fileToCalculateHashFor.txt'];
-    const filePath = getPath(import.meta.url, filePathSegments);
+    const filePath = getPath(import.meta.url, ['files', 'fileToCalculateHashFor.txt']);
 
     const transformStream = new Transform({
         transform (chunk, encoding, callback) {
@@ -17,8 +17,6 @@ const calculateHash = async () => {
         },
     });
 
-    const hash = createHash('sha256');
-
     try {
         await stat(filePath);
     } catch (err) {
@@ -26,11 +24,24 @@ const calculateHash = async () => {
         process.exit(1);
     }
 
-    createReadStream(filePath)
-        .pipe(hash)
-        .setEncoding('hex')
-        .pipe(transformStream)
-        .pipe(process.stdout);
+    // use pipe
+    // createReadStream(filePath)
+    //     .pipe(createHash('sha256'))
+    //     .setEncoding('hex')
+    //     .pipe(transformStream)
+    //     .pipe(process.stdout);
+
+    try {
+        await pipeline(
+            createReadStream(filePath),
+            createHash('sha256').setEncoding('hex'),
+            transformStream,
+            process.stdout,
+        );
+    } catch (err) {
+        console.error(err);
+        process.exit(1);
+    }
 };
 
 await calculateHash();

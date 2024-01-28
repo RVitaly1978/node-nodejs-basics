@@ -14,8 +14,7 @@ const service = async (path, data) => {
 }
 
 const performCalculations = async () => {
-    const workerPathSegments = ['worker.js'];
-    const workerPath = getPath(import.meta.url, workerPathSegments);
+    const workerPath = getPath(import.meta.url, ['worker.js']);
 
     const cpus = os.cpus();
 
@@ -29,6 +28,7 @@ const performCalculations = async () => {
         console.log(fibonacci);
     } catch (err) {
         console.error(err);
+        process.exit(1);
     }
 };
 

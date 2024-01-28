@@ -3,37 +3,41 @@ import { stat, rename as fsRename } from 'node:fs/promises';
 import { getPath, throwError } from '../utils.js';
 
 const rename = async () => {
-    const srcFilePathSegments = ['files', 'wrongFilename.txt'];
-    const destFilePathSegments = ['files', 'properFilename.md'];
+    const srcPath = getPath(import.meta.url, ['files', 'wrongFilename.txt']);
+    const destPath = getPath(import.meta.url, ['files', 'properFilename.md']);
 
-    const srcFilePath = getPath(import.meta.url, srcFilePathSegments);
-    const destFilePath = getPath(import.meta.url, destFilePathSegments);
+    let isFileExist = false;
 
     try {
-        await stat(srcFilePath);
+        await stat(srcPath);
     } catch (err) {
         if (err.code === 'ENOENT') {
             throwError();
         } else {
             console.error(err);
-            return;
+            process.exit(1);
         }
     }
 
     try {
-        await stat(destFilePath);
-        throwError();
+        await stat(destPath);
+        isFileExist = true;
     } catch (err) {
         if (err.code !== 'ENOENT') {
             console.error(err);
-            return;
+            process.exit(1);
         }
     }
 
+    if (isFileExist) {
+        throwError();
+    }
+
     try {
-        await fsRename(srcFilePath, destFilePath);
+        await fsRename(srcPath, destPath);
     } catch (err) {
         console.error(err);
+        process.exit(1);
     }
 };
 

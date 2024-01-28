@@ -3,9 +3,7 @@ import { readdir } from 'node:fs/promises';
 import { getPath, throwError } from '../utils.js';
 
 const list = async () => {
-    const folderPathSegments = ['files'];
-
-    const folderPath = getPath(import.meta.url, folderPathSegments);
+    const folderPath = getPath(import.meta.url, ['files']);
 
     try {
         const files = await readdir(folderPath, { encoding: 'utf8' });
@@ -15,6 +13,7 @@ const list = async () => {
             throwError();
         } else {
             console.error(err);
+            process.exit(1);
         }
     }
 };

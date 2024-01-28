@@ -1,4 +1,5 @@
 import { Transform } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { EOL } from 'node:os';
 
 const usageText = `Usage:
@@ -7,6 +8,8 @@ const usageText = `Usage:
 `;
 
 const transform = async () => {
+    console.log(usageText);
+
     const reverseStream = new Transform({
         transform (chunk, encoding, callback) {
             const transformed = chunk.toString().trim().split('').reverse().join('') + EOL + EOL;
@@ -14,17 +17,17 @@ const transform = async () => {
         },
     });
 
-    process.stdin
-        .on('data', (chunk) => {
-            const str = chunk.toString();
-            if (!str || !str.trim()) {
-                process.exit(0);
-            }
-        })
-        .pipe(reverseStream)
-        .pipe(process.stdout)
+    process.stdin.on('data', (chunk) => {
+        const str = chunk.toString();
+        if (!str || !str.trim()) { process.exit(0) }
+    });
 
-    console.log(usageText);
+    try {
+        await pipeline(process.stdin, reverseStream, process.stdout);
+    } catch (err) {
+        console.error(err);
+        process.exit(1);
+    }
 };
 
 await transform();

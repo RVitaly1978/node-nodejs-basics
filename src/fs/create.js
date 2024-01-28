@@ -3,10 +3,8 @@ import { writeFile, stat } from 'node:fs/promises';
 import { getPath, throwError } from '../utils.js';
 
 const create = async () => {
-    const filePathSegments = ['files', 'fresh.txt'];
     const fileContent = 'I am fresh and young';
-
-    const filePath = getPath(import.meta.url, filePathSegments);
+    const filePath = getPath(import.meta.url, ['files', 'fresh.txt']);
 
     let isFileExist = false;
 
@@ -16,7 +14,7 @@ const create = async () => {
     } catch (err) {
         if (err.code !== 'ENOENT') {
             console.error(err);
-            return;
+            process.exit(1);
         }
     }
 
@@ -28,6 +26,7 @@ const create = async () => {
         await writeFile(filePath, fileContent);
     } catch (err) {
         console.error(err);
+        process.exit(1);
     }
 };
 
